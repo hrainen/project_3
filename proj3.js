@@ -23,6 +23,31 @@ var key;
 var guard_1;
 var guard_2;
 
+// sounds that I will load in
+
+var key_sound;
+var select_sound;
+var game_theme;
+var death_sound;
+
+PIXI.loader
+	.add("select.wav").load(soundfnc)
+	.add("proj 3 theme.wav").load(soundfnc)
+	.add("Pickup_Coin3.wav").load(soundfnc)
+	.add("Explosion.wav").load(soundfnc);
+
+
+function soundfnc(){
+	key_sound = PIXI.audioManager.getAudio("Pickup_Coin3.wav");
+	select_sound = PIXI.audioManager.getAudio("select.wav");
+	game_theme = PIXI.audioManager.getAudio("proj 3 theme.wav");
+	death_sound = PIXI.audioManager.getAudio("Explosion.wav");
+	
+	game_theme.loop = true;
+	game_theme.play();
+	
+}
+
 
 // Character movement constants:
 var MOVE_LEFT = 1;
@@ -147,7 +172,7 @@ function collision(){
 			closeAllScreens();
 	
 			//play victory sound
-			//select_sound.play();
+			//game_theme.mute();
 	
 			// show end game container
 			end_game_container.alpha = 1;
@@ -161,10 +186,10 @@ function collision(){
 	}
 	// check if player hits the key
 	if(player.x == 159.5 && player.y == 991.75){
+		key_sound.play();
 		have_key = true;
 		key.alpha = 0;
 	}
-	
 
 	// check if player hits lava patches, if so, then reset the player
 	
@@ -175,7 +200,7 @@ function collision(){
 		closeAllScreens();
 	
 		//play sound
-		//select_sound.play();
+		death_sound.play();
 	
 		// make game visible
 		death_container.alpha = 1;
@@ -195,8 +220,8 @@ function collision(){
 		closeAllScreens();
 	
 		//play sound
-		//select_sound.play();
-	
+		death_sound.play();	
+		
 		// make game visible
 		death_container.alpha = 1;
 		death_on = true;
@@ -212,7 +237,7 @@ function collision(){
 		closeAllScreens();
 	
 		//play sound
-		//select_sound.play();
+		death_sound.play();
 	
 		// make game visible
 		death_container.alpha = 1;
@@ -644,7 +669,7 @@ function mouseHandlerPlay(e){ // if user hits the play button
 	closeAllScreens();
 	
 	//play sound
-	//select_sound.play();
+	select_sound.play();
 	
 	// set up game
 	world.alpha = 1;
@@ -663,7 +688,7 @@ function mouseHandlerContinue(e){ // if user hits the continue button on pause s
 	closeAllScreens();
 	
 	//play sound
-	//select_sound.play();
+	select_sound.play();
 	
 	// make game visible
 	world.alpha = 1;
@@ -677,7 +702,7 @@ function mouseHandlerTutorial(e){ // if user hits the tutorial button
 	closeAllScreens();
 	
 	//play sound
-	//select_sound.play();
+	select_sound.play();
 	
 	
 	// show tutorial screen
@@ -690,7 +715,7 @@ function mouseHandlerCredits(e){ // if user hits the credits button
 	closeAllScreens();
 	
 	//play sound
-	//select_sound.play();
+	select_sound.play();
 	
 	// show credits screen
 	credits_container.alpha = 1;
@@ -702,7 +727,7 @@ function mouseHandlerMainMenu(e){ // if user hits the main menu button go to tit
 	closeAllScreens();
 	
 	//play sound
-	//select_sound.play();
+	select_sound.play();
 	
 	// display titlescreen
 	title_container.alpha = 1;
