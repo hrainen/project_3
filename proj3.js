@@ -29,29 +29,99 @@ var MOVE_NONE = 0;
 function move() {
   if (player.direction == MOVE_NONE) {
     player.moving = false;
-    console.log(player.y);
+    console.log("current x: " + player.x);
+	console.log("current y: " + player.y);
     return;
   }
   player.moving = true;
   console.log("move");
   
-  if (player.direction == MOVE_LEFT && game_on) {
-    createjs.Tween.get(player).to({x: player.x - 32}, 500).call(move);
-  }
-  if (player.direction == MOVE_RIGHT && game_on)
-    createjs.Tween.get(player).to({x: player.x + 32}, 500).call(move);
-
-  if (player.direction == MOVE_UP && game_on)
-    createjs.Tween.get(player).to({y: player.y - 32}, 500).call(move);
+  var next_x_r = player.position.x + 32;
+  var next_x_l = player.position.x - 32;
+  var next_y_u = player.position.y - 32;
+  var next_y_d = player.position.y + 32;
+ 
+ /**
+  if(bounds_check(player.x, player.y)){ // if next pos is out of bounds, then dont update pos
+		  player.moving = false;
+		  return;
+  }**/
   
-  if (player.direction == MOVE_DOWN && game_on)
-    createjs.Tween.get(player).to({y: player.y + 32}, 500).call(move);
+  if (player.direction == MOVE_LEFT && game_on) {
+	  // check next position
+	  if(bounds_check(next_x_l, player.y)){
+		  player.moving = false;
+		  return;
+	  }
+	  
+	  else createjs.Tween.get(player).to({x: next_x_l}, 500).call(move);
+  }
+  if (player.direction == MOVE_RIGHT && game_on){
+	  // check next position
+	  if(bounds_check(next_x_r, player.y)){
+		  player.moving = false;
+		  return;
+	  }
+	  
+    else createjs.Tween.get(player).to({x: next_x_r}, 500).call(move);
+  }
+  if (player.direction == MOVE_UP && game_on){
+	  // check next position
+	  if(bounds_check(player.x, next_y_u)){
+		  player.moving = false;
+		  return;
+	  }
+	  
+	else createjs.Tween.get(player).to({y: next_y_u}, 500).call(move);
+  }
+  if (player.direction == MOVE_DOWN && game_on){
+	  // check next position
+	  if(bounds_check(player.x, next_y_d)){
+		  player.moving = false;
+		  return;
+	  }
+	  
+	else createjs.Tween.get(player).to({y: next_y_d}, 500).call(move);
+  }
 }
-
 
 // global variable to store starting location of the stage
 var stage_x = stage.x;
 var stage_y = stage.y;
+
+
+
+// returns true if player is out of bounds, takes in player coords
+function bounds_check(x, y){
+	
+	console.log("next x: " + x);
+	console.log("next y: " + y);
+	
+	//check if still inside the map
+	if(y > 1600) return true; // bottom edge
+	if(y < 548) return true; // top edge
+	if(x > 1150) return true; // right edge
+	if(x < 120) return true; // left edge
+	
+	
+	// check sides of main path
+	if(x < 550 && x > 385 && y > 1080) return true; // bot left side
+	if(x > 705 && x < 890 && y > 1080) return true; // bot right side
+	
+	if(x < 550 && x > 385 && y < 980) return true; // top left
+	if(x > 705 && x < 890 && y < 980) return true; // top right
+
+	// check right room
+	if(x > 870 && x < 1125 && y < 860) return true; // top left room
+	if(x > 870 && x < 1125 && y > 1190) return true; // bot left room
+
+	// check left room
+	if(x > 120 && x < 390 && y < 870) return true; // top right room
+	if(x > 120 && x < 390 && y > 1120) return true; // bot right room
+	
+	
+	return false; // im still inbounds
+}
 
 // Keydown events start movement
 window.addEventListener("keydown", function (e) {
@@ -62,7 +132,7 @@ window.addEventListener("keydown", function (e) {
   
   player.direction = MOVE_NONE;
 
-  if(e.keyCode == 27 && game_on){// user presses escape
+  if(e.keyCode == 27 && game_on){// user presses escape when game is running
 	// make sure other containers are set to invisible
 	closeAllScreens();
 	
@@ -79,6 +149,7 @@ window.addEventListener("keydown", function (e) {
 	stage.y = stage_y;
 	
   }
+  
   if (e.keyCode == 87 && game_on)
     player.direction = MOVE_UP;
   else if (e.keyCode == 83 && game_on)
@@ -280,7 +351,7 @@ stage.addChild(pause_container);
 	pause_background.position.y = 0;
 
 	// add play button
-	var play_button_4 = new PIXI.Sprite(PIXI.Texture.fromImage("play.png"));
+	var play_button_4 = new PIXI.Sprite(PIXI.Texture.fromImage("continue.png"));
 	pause_container.addChild(play_button_4);
 	play_button_4.anchor.x = .5;
 	play_button_4.anchor.y = .5;
