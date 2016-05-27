@@ -16,7 +16,13 @@ stage.scale.y = GAME_SCALE;
 
 // scene obj to get loaded in ready fnc
 var player;
+var start_X;
+var start_Y;
 var world;
+var key;
+var guard_1;
+var guard_2;
+
 
 // Character movement constants:
 var MOVE_LEFT = 1;
@@ -54,7 +60,7 @@ function move() {
 		  return;
 	  }
 	  
-	  else createjs.Tween.get(player).to({x: next_x_l}, 500).call(move);
+	  else createjs.Tween.get(player).to({x: next_x_l}, 275).call(move);
   }
   if (player.direction == MOVE_RIGHT && game_on){
 	  // check next position
@@ -63,7 +69,7 @@ function move() {
 		  return;
 	  }
 	  
-    else createjs.Tween.get(player).to({x: next_x_r}, 500).call(move);
+    else createjs.Tween.get(player).to({x: next_x_r}, 275).call(move);
   }
   if (player.direction == MOVE_UP && game_on){
 	  // check next position
@@ -72,7 +78,7 @@ function move() {
 		  return;
 	  }
 	  
-	else createjs.Tween.get(player).to({y: next_y_u}, 500).call(move);
+	else createjs.Tween.get(player).to({y: next_y_u}, 275).call(move);
   }
   if (player.direction == MOVE_DOWN && game_on){
 	  // check next position
@@ -81,7 +87,7 @@ function move() {
 		  return;
 	  }
 	  
-	else createjs.Tween.get(player).to({y: next_y_d}, 500).call(move);
+	else createjs.Tween.get(player).to({y: next_y_d}, 275).call(move);
   }
 }
 
@@ -90,6 +96,7 @@ var stage_x = stage.x;
 var stage_y = stage.y;
 
 
+var have_key = false; // if player has key, let them end the game
 
 // returns true if player is out of bounds, takes in player coords
 function bounds_check(x, y){
@@ -120,7 +127,108 @@ function bounds_check(x, y){
 	if(x > 120 && x < 390 && y > 1120) return true; // bot right room
 	
 	
+	
+	if(player.y < 600){ // player is in the "end zone" display text from guards telling player to go get the key
+			"Sorry, can't let you go with out the key"
+	}
+	
+	
 	return false; // im still inbounds
+}
+
+function collision(){
+	// check if player is at the end door
+	if(player.x == 639.5 && player.y == 575.75){
+		
+		if(have_key){ // player has the key 
+			// So display the end game container
+			
+			// make sure other containers are set to invisible
+			closeAllScreens();
+	
+			//play victory sound
+			//select_sound.play();
+	
+			// show end game container
+			end_game_container.alpha = 1;
+			end_game_on = true;
+			activate_buttons();
+			
+			// change the stage screen to view the end game container
+			stage.x = stage_x;
+			stage.y = stage_y;
+		}
+	}
+	// check if player hits the key
+	if(player.x == 159.5 && player.y == 991.75){
+		have_key = true;
+		key.alpha = 0;
+	}
+	
+
+	// check if player hits lava patches, if so, then reset the player
+	
+	// lava patch left middle
+	if(player.x > 195 && player.x < 315 && player.y > 930 && player.y < 1085){
+		
+		// make sure other containers are set to invisible
+		closeAllScreens();
+	
+		//play sound
+		//select_sound.play();
+	
+		// make game visible
+		death_container.alpha = 1;
+		death_on = true;
+		activate_buttons();
+		
+		// change the stage screen to view the end game container
+		stage.x = stage_x;
+		stage.y = stage_y;
+		
+		
+	}
+	
+	// lava patch left corner
+	if(player.x < 150 && player.y < 920){
+		// make sure other containers are set to invisible
+		closeAllScreens();
+	
+		//play sound
+		//select_sound.play();
+	
+		// make game visible
+		death_container.alpha = 1;
+		death_on = true;
+		activate_buttons();
+		
+		// change the stage screen to view the end game container
+		stage.x = stage_x;
+		stage.y = stage_y;
+	}
+	// lava patch right
+	if(player.x > 900 && player.x < 1115 && player.y > 865 && player.y < 1180){
+		// make sure other containers are set to invisible
+		closeAllScreens();
+	
+		//play sound
+		//select_sound.play();
+	
+		// make game visible
+		death_container.alpha = 1;
+		death_on = true;
+		activate_buttons();
+		
+		// change the stage screen to view the end game container
+		stage.x = stage_x;
+		stage.y = stage_y;
+		
+	}
+}
+
+function reset_player (){
+	player.x = 607.5;
+	player.y = 1535.75;
 }
 
 // Keydown events start movement
@@ -369,6 +477,42 @@ stage.addChild(pause_container);
 //
 // end pause container ///////////////////////////////////////////////////////////////////////////
 
+// Death container ///////////////////////////////////////////////////////////////////////////////
+//
+
+var death_container = new PIXI.Container();
+death_container.position.x = 360;
+death_container.position.y = 250;
+death_container.alpha = 0;
+var death_on = false;
+stage.addChild(death_container);
+
+	// add death background 
+	var death_background = new PIXI.Sprite(PIXI.Texture.fromImage("death.png"));
+	death_container.addChild(death_background);
+	death_background.anchor.x = .5;
+	death_background.anchor.y = .5;
+	death_background.position.x = 0;
+	death_background.position.y = 0;
+	
+	// add play again button
+	var play_button_5 = new PIXI.Sprite(PIXI.Texture.fromImage("play again.png"));
+	death_container.addChild(play_button_5);
+	play_button_5.anchor.x = .5;
+	play_button_5.anchor.y = .5;
+	play_button_5.position.x = -5;
+	play_button_5.position.y = 165;
+	
+	// add main menu button
+	var back_button5 = new PIXI.Sprite(PIXI.Texture.fromImage("main menu.png"));
+	death_container.addChild(back_button5);
+	back_button5.anchor.x = .5;
+	back_button5.anchor.y = .5;
+	back_button5.position.x = -5;
+	back_button5.position.y = -5;
+	
+//
+// end Death container ///////////////////////////////////////////////////////////////////////////////
 
 // initialize titlescreen buttons
 play_button.interactive = true;
@@ -396,9 +540,17 @@ back_button3.on('mousedown', mouseHandlerMainMenu);
 
 // initialize pause buttons
 play_button_4.interactive = false;
-play_button_4.on('mousedown', mouseHandlerPlay);
+play_button_4.on('mousedown', mouseHandlerContinue);
 back_button4.interactive = false;
 back_button4.on('mousedown', mouseHandlerMainMenu);
+
+// initialize death buttons
+play_button_5.interactive = false;
+play_button_5.on('mousedown', mouseHandlerPlay);
+back_button5.interactive = false;
+back_button5.on('mousedown', mouseHandlerMainMenu);
+
+
 
 // turns all screens invisible and sets all booleans to false, also deactivates all buttons for all screens
 function closeAllScreens(){
@@ -408,6 +560,8 @@ function closeAllScreens(){
 	tutorial_on = false;
 	credits_on = false;
 	pause_on = false;
+	end_game_on = false;
+	death_on = false;
 	
 	
 	// make all screens invisible
@@ -416,6 +570,8 @@ function closeAllScreens(){
 	tutorial_container.alpha = 0;
 	credits_container.alpha = 0;
 	pause_container.alpha = 0;
+	end_game_container.alpha = 0;
+	death_container.alpha = 0;
 	
 	de_activate_buttons();
 }
@@ -442,6 +598,10 @@ function de_activate_buttons(){ // turns off all buttons
 	play_button_4.interactive = false;
 	back_button4.interactive = false;
 	
+	// buttons for death
+	play_button_5.interactive = false;
+	back_button5.interactive = false;
+
 }
 
 // turns on the correct buttons
@@ -471,6 +631,11 @@ function activate_buttons(){
 		play_button_4.interactive = true;
 		back_button4.interactive = true;
 	}
+	
+	if(death_on){// death is on
+		play_button_5.interactive = true;
+		back_button5.interactive = true;
+	}
 }
 
 // mouse handler events /////////////////////////////////////////////////////////////////////////////////////
@@ -484,7 +649,29 @@ function mouseHandlerPlay(e){ // if user hits the play button
 	// set up game
 	world.alpha = 1;
 	game_on = true;
+	// make sure key is visible
+	key.alpha = 1;
+	
+	// make sure player is back to starting position
+	player.x = start_X;
+	player.y = start_Y;
+	
 }
+
+function mouseHandlerContinue(e){ // if user hits the continue button on pause screen
+	// make sure other containers are set to invisible
+	closeAllScreens();
+	
+	//play sound
+	//select_sound.play();
+	
+	// make game visible
+	world.alpha = 1;
+	game_on = true;
+	
+	
+}
+
 function mouseHandlerTutorial(e){ // if user hits the tutorial button
 	// make sure other containers are set to invisible.
 	closeAllScreens();
@@ -533,6 +720,8 @@ PIXI.loader
   .add('map_json', 'map.json')
   .add('tileset', 'tileset.png')
   .add('p_fw', 'p fw.png')
+  .add('key_img', 'key.png')
+  .add('guard', 'guard.png')
   .load(ready);
 
 function ready() {
@@ -542,21 +731,50 @@ function ready() {
   stage.addChild(world);
 
   var start = world.getObject("start");
-  
   player = new PIXI.Sprite(PIXI.loader.resources.p_fw.texture);
   player.x = start.x;
   player.y = start.y;
+  // save start pos for later
+  start_X = start.x;
+  start_Y = start.y;
   player.anchor.x = 0.0;
   player.anchor.y = 1.0;
   
+  
+  var key_start = world.getObject("get_key");
+  key = new PIXI.Sprite(PIXI.loader.resources.key_img.texture);
+  key.x = key_start.x;
+  key.y = key_start.y;
+  key.anchor.x = 0.0;
+  key.anchor.y = 1.0;
+  
+  
+  // add guards to door
+  var guard1_start = world.getObject("guard 1"); 
+  var guard2_start = world.getObject("guard 2");
+  guard_1 = new PIXI.Sprite(PIXI.loader.resources.guard.texture);
+  guard_2 = new PIXI.Sprite(PIXI.loader.resources.guard.texture);
+  
+  guard_1.x = guard1_start.x;
+  guard_1.y = guard1_start.y;
+  guard_2.x = guard2_start.x;
+  guard_2.y = guard2_start.y;
+  
+  guard_1.anchor.x = 0.0;
+  guard_1.anchor.y = 1.0;
+  guard_2.anchor.x = 0.0;
+  guard_2.anchor.y = 1.0;
+  
+ 
   console.log(player.x);
   console.log(player.y);
   // Find the entity layer
   var entity_layer = world.getObject("Entities");
   entity_layer.addChild(player);
-  
-  
-  
+  entity_layer.addChild(key);
+  entity_layer.addChild(guard_1);
+  entity_layer.addChild(guard_2);
+
   
   animate();
 }
@@ -566,6 +784,7 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
   if(game_on){
 	update_camera();
+	collision();
   }
   renderer.render(stage);
 }
